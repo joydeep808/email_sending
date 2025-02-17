@@ -23,4 +23,13 @@ public class Handler {
     return new Response<Map<String, String>>().sendSuccessResponse(400, "Validation Error", errors);
   }
 
+  @ExceptionHandler(exception = Exception.class)
+  public ResponseEntity<Response<String>> handleNotFoundException(Exception e) {
+    return new Response<String>().sendErrorResponse(400, e.getMessage());
+  }
+
+  @ExceptionHandler(exception = BaseException.class)
+  public ResponseEntity<Response<String>> handleNotFoundException(BaseException e) {
+    return new Response<String>().sendErrorResponse(e.getStatusCode(), e.getMessage());
+  }
 }

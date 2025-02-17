@@ -3,11 +3,7 @@ package com.interview.interview.controller;
 import java.io.UnsupportedEncodingException;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.interview.interview.dto.TaskDto;
 import com.interview.interview.service.EmailService;
@@ -32,7 +28,8 @@ public class EmailController {
 
   @GetMapping("/delete")
   public boolean deleteEmail() {
-    // redisService.deleteAll();
+    redisService.deleteAll();
+
     return true;
   }
 
