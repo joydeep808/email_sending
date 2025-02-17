@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: interview
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/email
+    username: Joydeep122
+    password: Joydeep122  
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  # mail:
+  #   host: smtp.gmail.com
+  #   port: 587
+  #   username: fakegamil32@gmail.com
+  #   password: cxsdciqqgcjsavmi  
+  #   properties: 
+  #     mail:
+  #       smtp:
+  #         starttls:
+  #           enable: true
+  #         auth: true
+
+server:
+  port: 5000
