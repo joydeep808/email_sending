@@ -25,6 +25,13 @@ public class Response<T> {
     return sendSuccessResponse();
   }
 
+  public ResponseEntity<Response<T>> sendSuccessResponse(int statusCode, String message) {
+    this.message = message;
+    this.statusCode = statusCode;
+    this.isSuccess = true;
+    return sendSuccessResponse();
+  }
+
   public ResponseEntity<Response<T>> sendErrorResponse(int statusCode, String message) {
     this.message = message;
     this.statusCode = statusCode;

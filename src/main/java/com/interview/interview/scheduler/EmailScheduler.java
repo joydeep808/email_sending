@@ -31,7 +31,7 @@ public class EmailScheduler {
 
   private final ObjectMapper objectMapper;
 
-  @Scheduled(fixedDelay = 10000) // 10 seconds
+  @Scheduled(fixedDelay = 20000) // 10 seconds
   public void processEmails() {
     List<Object> pendingTasks = redisService.getBatchOfPendingTasks(Constants.PENDING_EMAILS,
         Constants.REDIS_PENDING_KEY_PREFIX, BATCH_SIZE);
@@ -51,7 +51,7 @@ public class EmailScheduler {
           // redisService.markTaskAsProcessing(taskDto);
 
           // Send to RabbitMQ
-          redisService.deleteTask(taskDto.getId());
+          redisService.deleteTask(taskDto.getId(), Constants.PENDING_EMAILS);
           messageSender.sendMessage(Constants.EMAIL_QUEUE, objectMapper.writeValueAsString(task));
 
           // Delete from Redis only after successful queue
@@ -72,7 +72,7 @@ public class EmailScheduler {
     }
   }
 
-  @Scheduled(fixedDelay = 10000)
+  // @Scheduled(fixedDelay = 10000)
   public void processFailedEmails() {
     List<Object> failedTasks = redisService.getBatchOfPendingTasks(Constants.FAILED_EMAILS,
         Constants.REDIS_FAILED_KEY_PREFIX, BATCH_SIZE);
@@ -88,7 +88,7 @@ public class EmailScheduler {
               objectMapper.writeValueAsString(task));
 
           // Delete from Redis only after successful queue
-          redisService.deleteTask(taskDto.getId());
+          redisService.deleteTask(taskDto.getId(), Constants.FAILED_EMAILS);
         } catch (Exception e) {
           log.error("Failed to process task: {}", taskDto.getId(), e);
         }

@@ -29,7 +29,7 @@ public class Beans {
       {
         put("mail.smtp.starttls.enable", "true");
         put("mail.smtp.auth", "true");
-        put("mail.debug", "true");
+        // put("mail.debug", "true");
       }
       // i have to add the debug part
 

@@ -1,7 +1,5 @@
 package com.interview.interview.service;
 
-import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,15 +25,6 @@ public class RedisService {
   private final RedisTemplate<String, Object> redisTemplate;
   private final ObjectMapper objectMapper;
 
-  public boolean set(String key, TaskDto value) {
-    try {
-      redisTemplate.opsForValue().set(Constants.REDIS_PENDING_KEY_PREFIX + key, objectMapper.writeValueAsString(value));
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
   public boolean setTask(TaskDto task) {
     Map<String, String> emailData = new HashMap<>();
     emailData.put("id", task.getId());
@@ -54,46 +43,12 @@ public class RedisService {
 
   }
 
-  public <T> T get(String key, Class<T> clazz) {
-    try {
-      return objectMapper.convertValue(redisTemplate.opsForValue().get(key), clazz);
-    } catch (Exception e) {
+  public BaseTask getTask(String id) {
+    Object foundTask = redisTemplate.opsForHash().get(Constants.REDIS_PENDING_KEY_PREFIX, id);
+    if (foundTask == null) {
       return null;
     }
-  }
-
-  public List<Object> getAll(List<String> keys) {
-    return redisTemplate.opsForValue().multiGet(keys);
-  }
-
-  public boolean delete(String key) {
-    return redisTemplate.delete(key);
-  }
-
-  public boolean exists(String key) {
-    try {
-      return redisTemplate.hasKey(Constants.REDIS_PENDING_KEY_PREFIX + key);
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  public boolean update(String key, String value) {
-    try {
-      redisTemplate.opsForValue().setIfAbsent(key, value);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  public Set<String> isKeysAreAvilable() {
-    return redisTemplate.keys(Constants.REDIS_PENDING_KEY_PREFIX + "*");
-
-  }
-
-  public String generateKeyForRedis(String status, String email, String purpose) {
-    return status + ":" + email + "_" + purpose;
+    return (BaseTask) foundTask;
   }
 
   public void deleteAll() {
@@ -202,8 +157,13 @@ public class RedisService {
     }
   }
 
-  public void deleteTask(String taskId) {
+  public void deleteTask(String taskId, String type) {
     try {
+      if (type.equals(Constants.FAILED_EMAILS)) {
+        redisTemplate.opsForZSet().remove(Constants.FAILED_EMAILS, taskId);
+        redisTemplate.opsForHash().delete(Constants.REDIS_PENDING_KEY_PREFIX, taskId);
+        return;
+      }
       // Delete from the sorted set
       redisTemplate.opsForZSet().remove(Constants.PENDING_EMAILS, taskId);
       redisTemplate.opsForHash().delete(Constants.REDIS_PENDING_KEY_PREFIX, taskId);
