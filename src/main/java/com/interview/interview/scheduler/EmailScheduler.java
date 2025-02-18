@@ -72,7 +72,7 @@ public class EmailScheduler {
     }
   }
 
-  // @Scheduled(fixedDelay = 10000)
+  @Scheduled(fixedDelay = 10000)
   public void processFailedEmails() {
     List<Object> failedTasks = redisService.getBatchOfPendingTasks(Constants.FAILED_EMAILS,
         Constants.REDIS_FAILED_KEY_PREFIX, BATCH_SIZE);
