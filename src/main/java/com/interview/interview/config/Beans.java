@@ -18,11 +18,19 @@ public class Beans {
 
   @Bean
   public JavaMailSenderImpl javaMailSender() {
+    String emailId = envReader.getEnvEntry("EMAIL_ID");
+    String emailPassword = envReader.getEnvEntry("EMAIL_PASSWORD");
+    if (emailId == null || emailId.equals("")) {
+      throw new RuntimeException("Please provide your email id");
+    }
+    if (emailPassword == null || emailPassword.equals("")) {
+      throw new RuntimeException("Please provide your email password");
+    }
     JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
     javaMailSender.setHost("smtp.gmail.com");
     javaMailSender.setPort(587);
-    javaMailSender.setUsername(envReader.getEnvEntry("EMAIL_ID"));
-    javaMailSender.setPassword(envReader.getEnvEntry("EMAIL_PASSWORD"));
+    javaMailSender.setUsername(emailId);
+    javaMailSender.setPassword(emailPassword);
     javaMailSender.setProtocol("smtp");
 
     javaMailSender.setJavaMailProperties(new Properties() {

@@ -1,7 +1,5 @@
 package com.interview.interview.service;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -13,9 +11,7 @@ import com.interview.interview.config.EnvReader;
 import com.interview.interview.dto.BaseTask;
 import com.interview.interview.dto.FailedEmailTask;
 import com.interview.interview.dto.TaskDto;
-import com.interview.interview.entity.EmailEntity;
 import com.interview.interview.exception.NotFoundException;
-import com.interview.interview.repository.EmailRepo;
 import com.interview.interview.util.Response;
 
 import jakarta.mail.MessagingException;
@@ -32,7 +28,6 @@ public class EmailService {
   private final JavaMailSenderImpl javaMailSender;
   private final EnvReader envReader;
   private final RedisService redisService;
-  private final EmailRepo emailRepo;
   private final EmailValidator emailValidator;
 
   public ResponseEntity<Response<Object>> createTask(TaskDto task) {
@@ -50,25 +45,11 @@ public class EmailService {
   }
 
   public ResponseEntity<Response<Object>> getEmailStatus(String id) throws Exception {
-    BaseTask task = redisService.getTask(id);
+    BaseTask task = redisService.getTask(Constants.PROCESSED_EMAIL, id);
     if (task != null) {
       return new Response<>().sendSuccessResponse(200, "Found successfully done!", task);
-
     }
-    EmailEntity foundEmail = emailRepo.findById(id).orElse(null);
-    if (foundEmail == null) {
-      throw new NotFoundException("Status not found");
-    }
-    return new Response<>().sendSuccessResponse(200, "Found successfully done!", foundEmail);
-  }
-
-  public ResponseEntity<Response<Object>> getStatusByEmail(String email) throws Exception {
-    List<EmailEntity> foundEmail = emailRepo.findByEmailId(email);
-    if (foundEmail == null || foundEmail.size() == 0) {
-      throw new NotFoundException("Status not found");
-    }
-    return new Response<>().sendSuccessResponse(200, "Found successfully done!", foundEmail);
-
+    throw new NotFoundException("Email Status not found");
   }
 
   public boolean sendEmail(BaseTask task) {
@@ -110,6 +91,7 @@ public class EmailService {
       javaMailSender.send(message);
 
       successEmail(task);
+
       log.info("Email sent successfully");
     } catch (SendFailedException e) {
       // Check if the failure is because the email does not exist
@@ -126,9 +108,8 @@ public class EmailService {
   }
 
   private void successEmail(BaseTask taskDto) {
-    emailRepo
-        .save(EmailEntity.builder().body(taskDto.getBody()).status(TaskStatus.SENT).sentAt(System.currentTimeMillis())
-            .id(taskDto.getId()).recipient(taskDto.getRecipient()).subject(taskDto.getSubject()).build());
+    taskDto.setStatus(TaskStatus.SENT);
+    redisService.saveTask(taskDto, Constants.PROCESSED_EMAIL);
     return;
   }
 

@@ -1,5 +1,6 @@
 package com.interview.interview.service;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -43,10 +44,14 @@ public class RedisService {
 
   }
 
-  public BaseTask getTask(String id) {
-    Object foundTask = redisTemplate.opsForHash().get(Constants.REDIS_PENDING_KEY_PREFIX, id);
+  public BaseTask getTask(String type, String id) {
+    Object foundTask = redisTemplate.opsForHash().get(type, id);
     if (foundTask == null) {
-      return null;
+      Object pendingTask = redisTemplate.opsForHash().get(Constants.PENDING_EMAILS, id);
+      if (pendingTask == null) {
+        return null;
+      }
+      return (BaseTask) pendingTask;
     }
     return (BaseTask) foundTask;
   }
@@ -73,6 +78,13 @@ public class RedisService {
       redisTemplate.opsForHash().put(Constants.REDIS_FAILED_KEY_PREFIX, id, task);
       redisTemplate.opsForZSet().add(Constants.FAILED_EMAILS, id,
           task.getCreatedAt());
+      return true;
+    }
+    if (type.equals(Constants.PROCESSED_EMAIL)) {
+      TaskDto processedEmail = (TaskDto) task;
+      processedEmail.setStatus(TaskStatus.SENT);
+      processedEmail.setSentAt(Instant.now().getEpochSecond());
+      redisTemplate.opsForHash().put(Constants.PROCESSED_EMAIL, task.getId(), processedEmail);
       return true;
     }
 

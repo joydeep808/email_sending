@@ -44,11 +44,4 @@ public class EmailController {
       throws Exception {
     return emailService.getEmailStatus(id);
   }
-
-  @GetMapping("/{email}")
-  public ResponseEntity<Response<Object>> getEmailRecordByRecipient(@PathVariable(name = "email") String email)
-      throws Exception {
-    return emailService.getStatusByEmail(email);
-  }
-
 }

@@ -22,11 +22,27 @@ public class EnvReader {
       List<String> allLines = Files.readAllLines(Paths.get(userDir + "/.env"));
 
       for (String line : allLines) {
-        String[] parts = line.split("=");
-        envEntries.add(new EnvEntry(parts[0].trim(), parts[1].trim()));
+        // Trim leading and trailing whitespace
+        String trimmedLine = line.trim();
+
+        // Skip empty lines
+        if (trimmedLine.isEmpty()) {
+          continue;
+        }
+
+        // Split by the first '=' and ensure there are exactly two parts (key and value)
+        String[] parts = trimmedLine.split("=", 2);
+        if (parts.length == 2) {
+          String key = parts[0].trim();
+          String value = parts[1].trim();
+          envEntries.add(new EnvEntry(key, value));
+        } else {
+          // Handle malformed lines (without '=')
+          System.err.println("Skipping malformed line: " + trimmedLine);
+        }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Error reading env file");
+      throw new RuntimeException("Error reading .env file", e);
     }
   }
 

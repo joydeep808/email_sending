@@ -10,6 +10,7 @@ public class Constants {
   public static final String PROCESSING_EMAILS = "processing_emails";
   public final static String REDIS_PENDING_KEY_PREFIX = "PENDING:";
   public final static String REDIS_PROCESSING_KEY_PREFIX = "PROCESSING:";
+  public final static String PROCESSED_EMAIL = "processed_email";
 
   public final static String REDIS_FAILED_KEY_PREFIX = "FAILED:";
   public static final int BATCH_SIZE = 10;

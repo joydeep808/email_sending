@@ -31,7 +31,7 @@ public class EmailScheduler {
 
   private final ObjectMapper objectMapper;
 
-  @Scheduled(fixedDelay = 20000) // 10 seconds
+  @Scheduled(fixedDelay = 10000) // 10 seconds
   public void processEmails() {
     List<Object> pendingTasks = redisService.getBatchOfPendingTasks(Constants.PENDING_EMAILS,
         Constants.REDIS_PENDING_KEY_PREFIX, BATCH_SIZE);

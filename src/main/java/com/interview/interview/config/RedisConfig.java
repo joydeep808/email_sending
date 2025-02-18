@@ -21,10 +21,23 @@ public class RedisConfig {
 
   @Bean
   public RedisConnectionFactory connectionFactory() {
+    String redisPassword = envReader.getEnvEntry("REDIS_PASSWORD");
+    String redisHost = envReader.getEnvEntry("REDIS_HOST");
+    String redisPort = envReader.getEnvEntry("REDIS_PORT");
+    if (redisPassword == null || redisPassword.equals("")) {
+      throw new RuntimeException("Please provide redis password");
+    }
+    if (redisHost == null || redisHost.equals("")) {
+      throw new RuntimeException("Please provide redis host");
+    }
+    if (redisPort == null || redisHost.equals("")) {
+      throw new RuntimeException("Please provide redis host");
+    }
+
     RedisStandaloneConfiguration standaloneConfiguration = new RedisStandaloneConfiguration();
-    standaloneConfiguration.setHostName(envReader.getEnvEntry("REDIS_HOST"));
-    standaloneConfiguration.setPort(22612);
-    standaloneConfiguration.setPassword("AVNS_c2ZjB75TzYcZ8a4kkwb");
+    standaloneConfiguration.setHostName(redisHost);
+    standaloneConfiguration.setPort(Integer.parseInt(redisPort));
+    standaloneConfiguration.setPassword(redisPassword);
     return new LettuceConnectionFactory(standaloneConfiguration);
   }
 

@@ -39,7 +39,7 @@ public class TaskDto extends BaseTask {
     this.setRecipient(recipient);
     this.setSubject(subject);
     this.setBody(body);
-    this.setStatus(TaskStatus.PENDING);
+    this.setStatus(status);
     this.setCreatedAt(ZonedDateTime.now().toInstant().toEpochMilli());
     this.setId(id);
   }
